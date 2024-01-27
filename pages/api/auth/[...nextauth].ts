@@ -1,7 +1,6 @@
 // pages/api/auth/[...nextauth].ts
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import dbConnect from "@/db";
 import { User } from "@/app/models/User";
 import { IUser } from "@/app/types/User";
 
@@ -22,8 +21,6 @@ export default NextAuth({
         if (!credentials) {
           return null;
         }
-
-        await dbConnect();
 
         // Use the User model to find the user and verify their password
         const user: IUser | null = await User.findOne({

@@ -1,6 +1,7 @@
 // models/User.ts
 import mongoose from "mongoose";
-import { IUser } from "../types/User";
+import { IUser } from "@/app/types/User";
+import bcrypt from "bcrypt";
 
 const UserSchema = new mongoose.Schema<IUser>(
   {
@@ -32,6 +33,36 @@ const UserSchema = new mongoose.Schema<IUser>(
     timestamps: true,
   }
 );
+
+UserSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+});
+
+UserSchema.methods.comparePassword = function (
+  candidatePassword: string
+): Promise<boolean> {
+  const password = this.password;
+  return bcrypt.compare(candidatePassword, password);
+};
+
+UserSchema.statics.createUser = async function (
+  email: string,
+  password: string
+) {
+  // Check if a user with the given email already exists
+  const existingUser = await this.findOne({ email });
+  if (existingUser) {
+    throw new Error("A user with this email already exists");
+  }
+  // Create a new user
+  const user = new this({ email, password });
+  await user.save();
+  return user;
+};
 
 export const User: mongoose.Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
