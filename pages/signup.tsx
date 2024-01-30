@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 const SignUp = () => {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -19,11 +18,12 @@ const SignUp = () => {
       body: JSON.stringify({ email, password }),
     });
 
+    const data = await response.json();
+
     if (response.ok) {
-      router.push("");
+      signIn("credentials", { email, password, callbackUrl: "/" });
     } else {
-      const errorMessage = await response.text();
-      console.error(errorMessage);
+      console.error(data.message);
     }
   };
 
