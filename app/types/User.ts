@@ -1,5 +1,13 @@
 // types/User.ts
-import { Document, Model } from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
+
+export interface IUserCreate extends Model<IUser> {
+  createUser: (email: string, password: string) => Promise<IUser>;
+}
+
+export interface IUserSignIn extends Model<IUser> {
+  signIn: (email: string, password: string) => Promise<IUser>;
+}
 
 export interface IUser extends Document {
   email: string;
@@ -9,6 +17,7 @@ export interface IUser extends Document {
   comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
-export interface IUserCreate extends Model<IUser> {
-  createUser: (email: string, password: string) => Promise<IUser>;
-}
+export interface IUserModel
+  extends mongoose.Model<IUser>,
+    IUserSignIn,
+    IUserCreate {}

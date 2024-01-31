@@ -1,6 +1,6 @@
 // models/User.ts
 import mongoose from "mongoose";
-import { IUser } from "@/app/types/User";
+import { IUser, IUserModel } from "@/app/types/User";
 import bcrypt from "bcrypt";
 
 const UserSchema = new mongoose.Schema<IUser>(
@@ -64,5 +64,22 @@ UserSchema.statics.createUser = async function (
   return user;
 };
 
-export const User: mongoose.Model<IUser> =
-  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+UserSchema.statics.signIn = async function (email: string, password: string) {
+  // Find the user by email
+  const user = await this.findOne({ email });
+  if (!user) {
+    throw new Error("No user found with this email");
+  }
+
+  // Validate the password
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    throw new Error("Invalid password");
+  }
+
+  return user;
+};
+
+export const User: IUserModel =
+  (mongoose.models.User as IUserModel) ||
+  mongoose.model<IUser, IUserModel>("User", UserSchema);
