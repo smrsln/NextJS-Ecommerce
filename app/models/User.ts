@@ -77,7 +77,13 @@ UserSchema.statics.signIn = async function (email: string, password: string) {
     throw new Error("Invalid password");
   }
 
-  return user;
+  // Convert the Mongoose document to a plain JavaScript object
+  const userObject = user.toObject();
+
+  // Delete the password property
+  delete userObject.password;
+
+  return userObject;
 };
 
 export const User: IUserModel =

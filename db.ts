@@ -8,14 +8,10 @@ async function dbConnect(): Promise<void> {
     return;
   }
 
-  try {
-    await mongoose.connect(process.env.MONGODB_URI!);
-
-    connection.isConnected = mongoose.connection.readyState;
-    console.log("MongoDB connected successfully");
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-  }
+  // Connect to MongoDB and update the connection status
+  await mongoose.connect(process.env.MONGODB_URI!);
+  connection.isConnected = mongoose.connection.readyState;
+  console.log("MongoDB connected successfully");
 }
 
 export default dbConnect;

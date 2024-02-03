@@ -7,8 +7,6 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ session }) => {
-  console.log(JSON.stringify(session));
-
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/signin" });
   };
