@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import { IUser, IUserModel } from "@/app/types/User";
 import bcrypt from "bcrypt";
+import createHttpError from "http-errors";
 
 const UserSchema = new mongoose.Schema<IUser>(
   {
@@ -56,7 +57,7 @@ UserSchema.statics.createUser = async function (
   // Check if a user with the given email already exists
   const existingUser = await this.findOne({ email });
   if (existingUser) {
-    throw new Error("A user with this email already exists");
+    throw new createHttpError.Conflict("User already exists");
   }
   // Create a new user
   const user = new this({ email, password });
@@ -68,13 +69,13 @@ UserSchema.statics.signIn = async function (email: string, password: string) {
   // Find the user by email
   const user = await this.findOne({ email });
   if (!user) {
-    throw new Error("No user found with this email");
+    throw new createHttpError.NotFound("User not found");
   }
 
   // Validate the password
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    throw new Error("Invalid password");
+    throw new createHttpError.Unauthorized("Invalid email or password");
   }
 
   // Convert the Mongoose document to a plain JavaScript object
