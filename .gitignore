@@ -46,3 +46,6 @@ sentry.server.config.ts
 /logs
 # Sentry Config File
 .sentryclirc
+
+# Sentry Config File
+.sentryclirc

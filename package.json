@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
+    "@sentry/nextjs": "^7.100.1",
     "@tailwindcss/typography": "^0.5.10",
     "bcrypt": "^5.1.1",
     "http-errors": "^2.0.0",
