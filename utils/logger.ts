@@ -1,4 +1,3 @@
-// utils/logger.ts
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import * as Sentry from "@sentry/nextjs";
@@ -37,7 +36,13 @@ if (process.env.NODE_ENV !== "production") {
 logger.add(
   new winston.transports.Console({
     format: winston.format.printf((info) => {
-      Sentry.captureException(new Error(info.message));
+      if (info.level === "error") {
+        if (typeof info.message === "object") {
+          Sentry.captureException(info.message);
+        } else {
+          Sentry.captureException(new Error(info.message));
+        }
+      }
       return `${info.level}: ${info.message}`;
     }),
   })

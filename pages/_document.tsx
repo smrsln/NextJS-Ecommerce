@@ -1,37 +1,36 @@
-import NextDocument, {
+import Document, {
   Html,
   Head,
   Main,
   NextScript,
   DocumentContext,
+  DocumentInitialProps,
 } from "next/document";
-// import { css } from '@design/stitches.config';
 
-// type propsType = {
-//   styles: JSX.Element
-//   html: string
-//   head?: JSX.Element[]
-// }
+class MyDocument extends Document {
+  static async getInitialProps(
+    ctx: DocumentContext
+  ): Promise<DocumentInitialProps> {
+    const originalRenderPage = ctx.renderPage;
 
-export default class Document extends NextDocument {
-  static async getInitialProps(ctx: DocumentContext): Promise<any> {
-    // const originalRenderPage = ctx.renderPage;
+    // Run the React rendering logic synchronously
+    ctx.renderPage = () =>
+      originalRenderPage({
+        // Useful for wrapping the whole react tree
+        enhanceApp: (App) => App,
+        // Useful for wrapping in a per-page basis
+        enhanceComponent: (Component) => Component,
+      });
 
-    // let extractedStyles
-    //   ctx.renderPage = () => {
-    //     // const { styles, result } = css.getStyles(originalRenderPage);
-    //     // extractedStyles = styles;
-    //     return result;
-    //   };
-
-    const initialProps = await NextDocument.getInitialProps(ctx);
+    // Run the parent `getInitialProps`, it now includes the custom `renderPage`
+    const initialProps = await Document.getInitialProps(ctx);
 
     return initialProps;
   }
 
-  render(): JSX.Element {
+  render() {
     return (
-      <Html lang="pt-br">
+      <Html lang="en">
         <Head />
         <body>
           <Main />
@@ -41,3 +40,5 @@ export default class Document extends NextDocument {
     );
   }
 }
+
+export default MyDocument;
