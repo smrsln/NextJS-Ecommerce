@@ -1,6 +1,9 @@
-import { AppProps } from "next/app";
+import { QueryClient,QueryClientProvider } from "react-query";}
+import type { AppProps } from "next/app";
 import RootLayout from "@/app/components/layout";
 import CustomErrorPage from "@/pages/_error";
+
+const queryClient = new QueryClient();
 
 function MyApp({
   Component,
@@ -20,9 +23,11 @@ function MyApp({
 
   // Otherwise, render the page component inside the RootLayout
   return (
-    <RootLayout>
-      <Component {...pageProps} />
-    </RootLayout>
+    <QueryClientProvider client={queryClient}>
+      <RootLayout>
+        <Component {...pageProps} />
+      </RootLayout>
+    </QueryClientProvider>
   );
 }
 
