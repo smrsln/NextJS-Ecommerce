@@ -4,27 +4,42 @@ import { useState, FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useMutation } from "react-query";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Define the mutation
+  const signUpMutation = useMutation(
+    async ({ email, password }: { email: string; password: string }) => {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+
+      const data = await response.json();
+      return data;
+    },
+    {
+      onSuccess: ({ data }) => {
+        signIn("credentials", { email: data.email, callbackUrl: "/" });
+      },
+      onError: (error: Error) => {
+        console.error(error.message);
+      },
+    }
+  );
+
+  // Use the mutation in your event handler
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
-
-    const response = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      signIn("credentials", { email, password, callbackUrl: "/" });
-    } else {
-      console.error(data.message);
-    }
+    signUpMutation.mutate({ email, password });
   };
 
   return (

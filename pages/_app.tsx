@@ -1,4 +1,4 @@
-import { QueryClient,QueryClientProvider } from "react-query";}
+import { QueryClient, QueryClientProvider } from "react-query";
 import type { AppProps } from "next/app";
 import RootLayout from "@/app/components/layout";
 import CustomErrorPage from "@/pages/_error";

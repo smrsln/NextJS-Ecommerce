@@ -1,50 +1,55 @@
-import React, { ErrorInfo } from "react";
+import React, { useState } from "react";
+import { useMutation } from "react-query";
 
 interface Props {
   children: React.ReactNode;
 }
 
-interface State {
-  hasError: boolean;
+async function logError({
+  error,
+  errorInfo,
+}: {
+  error: Error;
+  errorInfo: React.ErrorInfo;
+}) {
+  const response = await fetch("/api/logError", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ error: error.toString(), errorInfo }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
 }
 
-class ErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+const ErrorBoundary: React.FC<Props> = ({ children }) => {
+  const [hasError, setHasError] = useState(false);
+  const mutation = useMutation(logError);
 
-  static getDerivedStateFromError(error: Error) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    fetch("/api/logError", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ error: error.toString(), errorInfo }),
-    });
-  }
-
-  handleRetry = () => {
-    this.setState({ hasError: false });
+  const componentDidCatch = (error: Error, errorInfo: React.ErrorInfo) => {
+    setHasError(true);
+    mutation.mutate({ error, errorInfo });
   };
 
-  render() {
-    if (this.state.hasError) {
-      return (
-        <>
-          <h1>"Something went wrong."</h1>
-          <button onClick={this.handleRetry}>Retry</button>
-        </>
-      );
-    }
+  const handleRetry = () => {
+    setHasError(false);
+  };
 
-    return this.props.children;
+  if (hasError) {
+    return (
+      <>
+        <h1>"Something went wrong."</h1>
+        <button onClick={handleRetry}>Retry</button>
+      </>
+    );
   }
-}
+
+  return <>{children}</>;
+};
 
 export default ErrorBoundary;
