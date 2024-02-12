@@ -1,4 +1,4 @@
-import { withAuth, getServerSideProps } from "@/utils/withAuth";
+import { withAuth, getServerSideProps } from "@/hoc/withAuth";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 
