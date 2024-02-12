@@ -9,7 +9,6 @@ import { useMutation } from "react-query";
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // Define the mutation
   const signUpMutation = useMutation(
     async ({ email, password }: { email: string; password: string }) => {
       const response = await fetch("/api/auth/signup", {
@@ -36,7 +35,6 @@ const SignUp = () => {
     }
   );
 
-  // Use the mutation in your event handler
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
     signUpMutation.mutate({ email, password });

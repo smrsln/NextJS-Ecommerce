@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
-import { json } from "stream/consumers";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
