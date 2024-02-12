@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/nextjs";
 export const logger = winston.createLogger({
   level: "info",
   format: winston.format.json(),
-  defaultMeta: { service: "auth-service" },
+
   transports: [
     new DailyRotateFile({
       filename: "logs/error-%DATE%.log",

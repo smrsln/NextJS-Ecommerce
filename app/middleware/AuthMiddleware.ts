@@ -5,15 +5,25 @@ import { logger } from "@/utils/logger";
 export const AuthMiddleware =
   (handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) =>
   async (req: NextApiRequest, res: NextApiResponse) => {
+    const serviceName = "Auth";
     try {
       await handler(req, res);
-      logger.info(`Successful authentication for user: ${req.body.email}`);
+      logger.info(`Successful authentication for user: ${req.body.email}`, {
+        service: serviceName,
+        method: req.method,
+        path: req.url,
+      });
     } catch (err) {
-      logger.error(`Failed authentication for user: ${req.body.email}`);
+      const error = err as Error; // Type assertion
+      logger.error(`Failed authentication for user: ${req.body.email}`, {
+        service: serviceName,
+        method: req.method,
+        path: req.url,
+        error: error.message,
+      });
       if (err instanceof createHttpError.HttpError) {
         res.status(err.statusCode).json({ message: err.message });
       } else {
-        const error = err as Error; // Type assertion
         logger.error(error.message);
         res.status(500).json({ message: "Something went wrong" });
       }
