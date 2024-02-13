@@ -50,43 +50,6 @@ UserSchema.methods.comparePassword = function (
   return bcrypt.compare(candidatePassword, password);
 };
 
-UserSchema.statics.createUser = async function (
-  email: string,
-  password: string
-) {
-  // Check if a user with the given email already exists
-  const existingUser = await this.findOne({ email });
-  if (existingUser) {
-    throw new createHttpError.Conflict("User already exists");
-  }
-  // Create a new user
-  const user = new this({ email, password });
-  await user.save();
-  return user;
-};
-
-UserSchema.statics.signIn = async function (email: string, password: string) {
-  // Find the user by email
-  const user = await this.findOne({ email });
-  if (!user) {
-    throw new createHttpError.NotFound("User not found");
-  }
-
-  // Validate the password
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
-    throw new createHttpError.Unauthorized("Invalid email or password");
-  }
-
-  // Convert the Mongoose document to a plain JavaScript object
-  const userObject = user.toObject();
-
-  // Delete the password property
-  delete userObject.password;
-
-  return userObject;
-};
-
 export const User: IUserModel =
   (mongoose.models.User as IUserModel) ||
   mongoose.model<IUser, IUserModel>("User", UserSchema);
