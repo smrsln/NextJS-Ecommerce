@@ -1,55 +1,61 @@
-import React, { useState } from "react";
-import { useMutation } from "react-query";
+import React from "react";
+
+interface State {
+  hasError: boolean;
+}
 
 interface Props {
   children: React.ReactNode;
 }
 
-async function logError({
-  error,
-  errorInfo,
-}: {
-  error: Error;
-  errorInfo: React.ErrorInfo;
-}) {
-  const response = await fetch("/api/logError", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ error: error.toString(), errorInfo }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
   }
 
-  return response.json();
+  static getDerivedStateFromError() {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  async componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log the error to an error reporting service
+    try {
+      const response = await fetch("/api/logError", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ error: error.toString(), errorInfo }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      console.log(await response.json());
+    } catch (error) {
+      console.error("Error logging failed:", error);
+    }
+  }
+
+  handleRetry = () => {
+    this.setState({ hasError: false });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <>
+          <h1>"Something went wrong."</h1>
+          <button onClick={this.handleRetry}>Retry</button>
+        </>
+      );
+    }
+
+    return this.props.children;
+  }
 }
-
-const ErrorBoundary: React.FC<Props> = ({ children }) => {
-  const [hasError, setHasError] = useState(false);
-  const mutation = useMutation(logError);
-
-  const componentDidCatch = (error: Error, errorInfo: React.ErrorInfo) => {
-    setHasError(true);
-    mutation.mutate({ error, errorInfo });
-  };
-
-  const handleRetry = () => {
-    setHasError(false);
-  };
-
-  if (hasError) {
-    return (
-      <>
-        <h1>"Something went wrong."</h1>
-        <button onClick={handleRetry}>Retry</button>
-      </>
-    );
-  }
-
-  return <>{children}</>;
-};
 
 export default ErrorBoundary;
