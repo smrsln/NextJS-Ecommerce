@@ -67,6 +67,10 @@ export default NextAuth({
       },
     }),
   ],
+  session: {
+    // Use JSON Web Tokens for session management because it is more lightweight and next middleware can use it
+    strategy: "jwt",
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
