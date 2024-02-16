@@ -13,9 +13,10 @@ function logRequest(req: NextRequest) {
 }
 
 export async function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.startsWith("/api")) {
-    logRequest(req);
-  }
+  // Uncomment for debugging purposes
+  // if (req.nextUrl.pathname.startsWith("/api")) {
+  //   logRequest(req);
+  // }
 
   if (
     req.nextUrl.pathname.startsWith("/signin") ||

@@ -3,7 +3,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/db";
 import UserController from "@/app/controllers/User/UserController";
 import { logger } from "@/utils/logger";
-import { http } from "winston";
 import createHttpError from "http-errors";
 
 export default NextAuth({
