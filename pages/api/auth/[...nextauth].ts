@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import dbConnect from "@/db";
+import dbCheck from "@/db";
 import UserController from "@/app/controllers/User/UserController";
 import { logger } from "@/utils/logger";
 import createHttpError from "http-errors";
@@ -24,7 +24,7 @@ export default NextAuth({
         }
 
         try {
-          await dbConnect();
+          await dbCheck();
           const user = await UserController.signIn(
             credentials.email,
             credentials.password

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse, NextApiHandler } from "next";
-import dbConnect from "@/db";
+import dbCheck from "@/db";
 
 export default async function dbConnectMiddleware(
   req: NextApiRequest,
@@ -7,7 +7,7 @@ export default async function dbConnectMiddleware(
   next: NextApiHandler
 ) {
   try {
-    await dbConnect();
+    await dbCheck();
     await next(req, res);
   } catch (error) {
     console.error("DB connection error:", error);

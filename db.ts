@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const connection: { isConnected?: number } = {};
 
-async function dbConnect(): Promise<void> {
+async function dbCheck(): Promise<void> {
   if (connection.isConnected) {
     return;
   }
@@ -18,4 +18,4 @@ async function dbConnect(): Promise<void> {
   }
 }
 
-export default dbConnect;
+export default dbCheck;
