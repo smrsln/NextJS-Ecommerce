@@ -20,7 +20,7 @@ class UserController {
   static async signIn(email: string, password: string) {
     const user = await User.findOne({ email });
     if (!user) {
-      throw new createHttpError.NotFound("User not found");
+      throw new createHttpError.NotFound("Invalid email or password");
     }
 
     const isMatch = await user.comparePassword(password);
@@ -28,9 +28,9 @@ class UserController {
       throw new createHttpError.Unauthorized("Invalid email or password");
     }
 
-    const { password: _, ...userObject } = user.toObject();
+    // const { password: _, ...userObject } = user.toObject();
 
-    return userObject;
+    return user;
   }
 }
 

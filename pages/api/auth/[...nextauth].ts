@@ -1,8 +1,10 @@
-// pages/api/auth/[...nextauth].ts
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { User } from "@/app/models/User";
-import { IUser } from "@/app/types/User";
+import dbConnect from "@/db";
+import UserController from "@/app/controllers/User/UserController";
+import { logger } from "@/utils/logger";
+import { http } from "winston";
+import createHttpError from "http-errors";
 
 export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
@@ -14,7 +16,6 @@ export default NextAuth({
         email: {
           label: "Email",
           type: "text",
-          placeholder: "mail@mailprovider.com",
         },
         password: { label: "Password", type: "password" },
       },
@@ -24,9 +25,20 @@ export default NextAuth({
         }
 
         try {
-          const user: IUser | null = await User.findOne({
-            email: credentials.email,
-          });
+          await dbConnect();
+          const user = await UserController.signIn(
+            credentials.email,
+            credentials.password
+          );
+
+          logger.info(
+            `Successful authentication for user: ${credentials.email}`,
+            {
+              service: "Auth",
+              method: "POST",
+              path: "/api/auth/signin",
+            }
+          );
 
           if (user) {
             //&& (await user.comparePassword(credentials.password))
@@ -37,11 +49,20 @@ export default NextAuth({
               image: user.image || null,
             };
           } else {
-            throw new Error("Invalid credentials");
+            return null;
           }
         } catch (error) {
-          console.log(credentials);
-          throw new Error("Failed to authorize");
+          logger.error(`Failed authentication for user: ${credentials.email}`, {
+            service: "Auth",
+            method: "POST",
+            path: "/api/auth/signin",
+            error: (error as Error).message,
+            statusCode:
+              error instanceof createHttpError.HttpError
+                ? error.statusCode
+                : undefined,
+          });
+          throw new Error((error as Error).message);
         }
       },
     }),
@@ -58,6 +79,9 @@ export default NextAuth({
     async session({ session, token }) {
       session.user = { ...token };
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      return baseUrl;
     },
   },
 });

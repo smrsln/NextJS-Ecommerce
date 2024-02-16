@@ -4,45 +4,31 @@ import { useState, FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useMutation } from "react-query";
+import { useRouter } from "next/router";
 
 const SignIn = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const signInMutation = useMutation(
-    async ({ email, password }: { email: string; password: string }) => {
-      const response = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        // Parse the JSON only if the response is not OK.
-        const data = await response.json();
-        throw new Error(data.message);
-      }
-
-      const data = await response.json();
-      return data;
-    },
-    {
-      onSuccess: ({ data }) => {
-        signIn("credentials", {
-          email: data.email,
-          callbackUrl: "/",
-        });
-      },
-      onError: (error: Error) => {
-        console.error(error.message);
-      },
-    }
-  );
-
-  const handleSignIn = (e: FormEvent) => {
+  const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
-    signInMutation.mutate({ email, password });
+    setIsLoading(true);
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result && result.error) {
+      setError(new Error(result.error));
+      setIsLoading(false);
+    } else if (result && result.ok) {
+      setError(null);
+      router.push("/");
+    }
   };
 
   return (
@@ -96,14 +82,16 @@ const SignIn = () => {
                   <div className="flex flex-col mt-4 lg:space-y-2">
                     <button
                       type="submit"
-                      disabled={signInMutation.isLoading}
-                      className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      disabled={isLoading}
+                      className={`flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                        isLoading ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
-                      {signInMutation.isLoading ? "Signing in..." : "Sign in"}
+                      {isLoading ? "Signing in..." : "Sign in"}
                     </button>
-                    {signInMutation.isError && (
+                    {error && (
                       <p className="text-sm text-red-500">
-                        Error: {(signInMutation.error as Error).message}
+                        {error && `Error: ${(error as Error).message}`}
                       </p>
                     )}
                     <Link

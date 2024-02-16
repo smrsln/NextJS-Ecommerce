@@ -20,6 +20,8 @@ export const AuthMiddleware =
         method: req.method,
         path: req.url,
         error: error.message,
+        statusCode:
+          err instanceof createHttpError.HttpError ? err.statusCode : undefined,
       });
       if (err instanceof createHttpError.HttpError) {
         res.status(err.statusCode).json({ message: err.message });
