@@ -13,6 +13,7 @@ const Home: React.FC<HomeProps> = ({ session }) => {
   return (
     <>
       <div>Home</div>
+      <pre>{JSON.stringify(session, null, 2)}</pre>
       <button onClick={handleSignOut}>Sign Out</button>
     </>
   );
