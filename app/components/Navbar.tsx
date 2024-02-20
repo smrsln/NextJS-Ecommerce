@@ -6,6 +6,7 @@ import {
   MenuItem,
   ProductItem,
 } from "@/app/components/ui/navbar-menu";
+import { ModeToggle } from "@/app/components/ui/themeModeButton";
 import { cn } from "@/utils/cn";
 
 function Navbar({ className }: { className?: string }) {
@@ -59,6 +60,7 @@ function Navbar({ className }: { className?: string }) {
             <HoveredLink href="/enterprise">Enterprise</HoveredLink>
           </div>
         </MenuItem>
+        <ModeToggle />
       </Menu>
     </div>
   );
