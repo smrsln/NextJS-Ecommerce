@@ -3,7 +3,6 @@ import { ThemeProvider } from "@/app/components/themeProvider";
 import "@/app/globals.css";
 import ErrorBoundary from "@/app/components/error-boundary";
 import Head from "next/head";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -24,7 +23,6 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
-          <SpeedInsights />
           <title>Ecommerce</title>
         </Head>
       </header>
