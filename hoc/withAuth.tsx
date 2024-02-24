@@ -1,4 +1,3 @@
-// utils/withAuth.tsx
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
 import { FC } from "react";
@@ -24,7 +23,7 @@ export const getServerSideProps = async (
   if (!session) {
     return {
       redirect: {
-        destination: "/signin",
+        destination: "/signup",
         permanent: false,
       },
     };

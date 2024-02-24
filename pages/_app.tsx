@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import type { AppProps } from "next/app";
+import { SessionProvider } from "next-auth/react";
 import RootLayout from "@/app/components/layout";
 import CustomErrorPage from "@/pages/_error";
+import withNavbar from "@/hoc/withNavbar";
 
 const queryClient = new QueryClient();
 
@@ -21,12 +23,16 @@ function MyApp({
     );
   }
 
+  const ComponentWithNavbar = withNavbar(Component);
+
   // Otherwise, render the page component inside the RootLayout
   return (
     <QueryClientProvider client={queryClient}>
-      <RootLayout>
-        <Component {...pageProps} />
-      </RootLayout>
+      <SessionProvider session={pageProps.session}>
+        <RootLayout>
+          <ComponentWithNavbar {...pageProps} />
+        </RootLayout>
+      </SessionProvider>
     </QueryClientProvider>
   );
 }

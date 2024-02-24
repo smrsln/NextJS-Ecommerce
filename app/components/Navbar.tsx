@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ModeToggle } from "@/app/components/ui/themeModeButton";
+import { ModeToggle } from "@/app/components/ui/buttons/theme-mode-button";
 import { cn } from "@/lib/utils";
 
 import {
@@ -14,6 +15,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/app/components/ui/navigation-menu";
+import ShinyButton from "./ui/buttons/shiny-button";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -54,6 +56,7 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export function Navbar() {
+  const { data: session } = useSession();
   return (
     <div className="container flex h-14 max-w-screen-2xl items-center">
       <NavigationMenu className="mr-4 hidden md:flex">
@@ -125,7 +128,16 @@ export function Navbar() {
         </NavigationMenuList>
       </NavigationMenu>
       <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-        <div className="w-full flex-1 md:w-auto md:flex-none"></div>
+        <div className="w-full flex-1 md:w-auto md:flex-none">
+          {!session && (
+            <Link href="/signup">
+              <ShinyButton
+                text="Login"
+                svgPath="M10.75 8.75L14.25 12L10.75 15.25"
+              />
+            </Link>
+          )}
+        </div>
         <NavigationMenu className="flex items-center">
           <NavigationMenuList>
             <NavigationMenuItem>

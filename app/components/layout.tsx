@@ -1,8 +1,7 @@
 import { FC, ReactNode } from "react";
 import { ThemeProvider } from "@/app/components/themeProvider";
 import "@/app/globals.css";
-import ErrorBoundary from "@/app/components/ErrorBoundary";
-import Navbar from "@/app/components/Navbar";
+import ErrorBoundary from "@/app/components/errorBoundary";
 import Head from "next/head";
 
 type RootLayoutProps = {
@@ -26,7 +25,6 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
           />
           <title>Ecommerce</title>
         </Head>
-        <Navbar />
       </header>
       <div className="container mx-auto px-4">
         <ErrorBoundary>{children}</ErrorBoundary>
