@@ -39,3 +39,8 @@ logger.add(
     }),
   })
 );
+
+// Add error handling
+logger.on("error", (error) => {
+  console.error("Error occurred during logging:", error);
+});
