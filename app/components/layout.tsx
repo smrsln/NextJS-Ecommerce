@@ -24,6 +24,7 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
+          <SpeedInsights />
           <title>Ecommerce</title>
         </Head>
       </header>
