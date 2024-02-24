@@ -1,7 +1,7 @@
 import { FC, ReactNode } from "react";
 import { ThemeProvider } from "@/app/components/themeProvider";
 import "@/app/globals.css";
-import ErrorBoundary from "@/app/components/errorBoundary";
+import ErrorBoundary from "@/app/components/error-boundary";
 import Head from "next/head";
 
 type RootLayoutProps = {

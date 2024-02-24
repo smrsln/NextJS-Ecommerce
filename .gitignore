@@ -37,7 +37,6 @@ next-env.d.ts
 .env
 
 # Sentry Config File
-.sentryclirc
 sentry.edge.config.ts
 
 # Log Folder
