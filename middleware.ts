@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest) {
     const cookieName = process.env.VERCEL
       ? "__Secure-next-auth.session-token"
       : "next-auth.session-token";
-    const sessionToken = cookies["next-auth.session-token"];
+    const sessionToken = cookies[cookieName];
 
     if (sessionToken) {
       const redirectUrl = new URL("/", req.nextUrl);

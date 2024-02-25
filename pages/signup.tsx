@@ -27,7 +27,11 @@ const SignUp = () => {
     },
     {
       onSuccess: ({ data }) => {
-        signIn("credentials", { email: data.email, callbackUrl: "/" });
+        signIn("credentials", {
+          email: data.email,
+          password,
+          redirect: true,
+        });
       },
       onError: (error: Error) => {
         console.error(error.message);

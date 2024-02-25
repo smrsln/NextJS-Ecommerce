@@ -9,12 +9,15 @@ class UserController {
       throw new createHttpError.Conflict("User already exists");
     }
 
-    const salt = await bcrypt.genSalt(10);
-    password = await bcrypt.hash(password, salt);
-
     const user = new User({ email, password });
     await user.save();
-    return user;
+
+    // Create a new object that doesn't include the password
+    const userWithoutPassword = {
+      email: user.email,
+    };
+
+    return userWithoutPassword;
   }
 
   static async signIn(email: string, password: string) {
