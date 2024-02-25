@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,6 +10,7 @@ import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
 
 import { Button } from "@/app/components/ui//buttons/button";
+import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -18,6 +20,7 @@ import {
   FormMessage,
 } from "@/app/components/ui/form/form";
 import { Input } from "@/app/components/ui/form/input";
+import { toast } from "sonner";
 
 const signupSchema = z.object({
   email: z.string().email({ message: "Invalid email" }),
@@ -27,6 +30,8 @@ const signupSchema = z.object({
 });
 
 const SignUp = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -57,15 +62,25 @@ const SignUp = () => {
       return data;
     },
     {
+      onMutate: () => {
+        toast.info("Creating user...");
+      },
       onError: (error: Error) => {
-        console.error(error.message);
+        setIsLoading(false);
+        toast.error(error.message, {
+          description: "Sign up failed",
+        });
       },
     }
   );
 
   const handleSignUp = async (values: z.infer<typeof signupSchema>) => {
+    setIsLoading(true);
     signUpMutation.mutate(values, {
       onSuccess: ({ data }) => {
+        toast.success("Sign up successful", {
+          description: "You have successfully signed up",
+        });
         signIn("credentials", {
           email: data.email,
           password: values.password,
@@ -144,12 +159,20 @@ const SignUp = () => {
                     )}
                   />
                   <div className="flex flex-col mt-4 lg:space-y-2">
-                    <Button
-                      type="submit"
-                      className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Sign up
-                    </Button>
+                    {isLoading ? (
+                      <Button disabled>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Please wait
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        Sign up
+                      </Button>
+                    )}
+
                     <Link
                       href="#"
                       type="button"
