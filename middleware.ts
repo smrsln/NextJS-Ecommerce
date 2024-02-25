@@ -18,11 +18,12 @@ export async function middleware(req: NextRequest) {
   //   logRequest(req);
   // }
 
-  if (
-    req.nextUrl.pathname.startsWith("/signin") ||
-    req.nextUrl.pathname.startsWith("/signup")
-  ) {
+  const validPaths = ["/signin", "/signup"];
+  if (validPaths.some((path) => req.nextUrl.pathname.startsWith(path))) {
     const cookies = cookie.parse(req.headers.get("Cookie") || "");
+    const cookieName = process.env.VERCEL
+      ? "__Secure-next-auth.session-token"
+      : "next-auth.session-token";
     const sessionToken = cookies["next-auth.session-token"];
 
     if (sessionToken) {
