@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import createHttpError from "http-errors";
-import { logger } from "@/utils/logger";
+import { logger } from "@/lib/logger";
 
 export const AuthMiddleware =
   (handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) =>

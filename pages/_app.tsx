@@ -3,9 +3,7 @@ import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import RootLayout from "@/app/components/layout";
 import CustomErrorPage from "@/pages/_error";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import withNavbar from "@/hoc/withNavbar";
-import Head from "next/head";
 
 const queryClient = new QueryClient();
 
@@ -32,9 +30,6 @@ function MyApp({
     <QueryClientProvider client={queryClient}>
       <SessionProvider session={pageProps.session}>
         <RootLayout>
-          <Head>
-            <SpeedInsights />
-          </Head>
           <ComponentWithNavbar {...pageProps} />
         </RootLayout>
       </SessionProvider>

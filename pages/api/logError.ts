@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { logger } from "@/utils/logger";
+import { logger } from "@/lib/logger";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { error, errorInfo } = req.body;

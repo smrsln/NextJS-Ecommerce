@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import dbCheck from "@/db";
 import UserController from "@/app/controllers/User/UserController";
-import { logger } from "@/utils/logger";
+import { logger } from "@/lib/logger";
 import createHttpError from "http-errors";
 
 export default NextAuth({

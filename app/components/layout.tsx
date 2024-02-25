@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/app/components/themeProvider";
 import "@/app/globals.css";
 import ErrorBoundary from "@/app/components/error-boundary";
 import Head from "next/head";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -29,6 +30,7 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
       <div className="container mx-auto px-4">
         <ErrorBoundary>{children}</ErrorBoundary>
         <footer>Footer</footer>
+        <SpeedInsights />
       </div>
     </ThemeProvider>
   );
