@@ -1,14 +1,45 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
 
+import { Button } from "@/app/components/ui//buttons/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/app/components/ui/form/form";
+import { Input } from "@/app/components/ui/form/input";
+
+const signupSchema = z.object({
+  email: z.string().email({ message: "Invalid email" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" }),
+});
+
 const SignUp = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = form;
+
   const signUpMutation = useMutation(
     async ({ email, password }: { email: string; password: string }) => {
       const response = await fetch("/api/auth/signup", {
@@ -26,22 +57,22 @@ const SignUp = () => {
       return data;
     },
     {
-      onSuccess: ({ data }) => {
-        signIn("credentials", {
-          email: data.email,
-          password,
-          redirect: true,
-        });
-      },
       onError: (error: Error) => {
         console.error(error.message);
       },
     }
   );
 
-  const handleSignUp = async (e: FormEvent) => {
-    e.preventDefault();
-    signUpMutation.mutate({ email, password });
+  const handleSignUp = async (values: z.infer<typeof signupSchema>) => {
+    signUpMutation.mutate(values, {
+      onSuccess: ({ data }) => {
+        signIn("credentials", {
+          email: data.email,
+          password: values.password,
+          redirect: true,
+        });
+      },
+    });
   };
 
   return (
@@ -62,43 +93,63 @@ const SignUp = () => {
                   </div>
                 </div>
               </div>
-              <form onSubmit={handleSignUp}>
-                <div className="mt-6 space-y-2">
-                  <div>
-                    <label htmlFor="email" className="sr-only">
-                      Email
-                    </label>
-                    <input
-                      type="text"
-                      name="email"
-                      id="email"
-                      className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="password" className="sr-only">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      id="password"
-                      className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(handleSignUp)}
+                  className="mt-6 space-y-2"
+                >
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="email" className="sr-only">
+                          Email
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            id="email"
+                            placeholder="Enter your email"
+                            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                            {...field}
+                          />
+                        </FormControl>
+                        {errors.email && (
+                          <FormMessage>{errors.email.message}</FormMessage>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="password" className="sr-only">
+                          Password
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                            {...field}
+                          />
+                        </FormControl>
+                        {errors.password && (
+                          <FormMessage>{errors.password.message}</FormMessage>
+                        )}
+                      </FormItem>
+                    )}
+                  />
                   <div className="flex flex-col mt-4 lg:space-y-2">
-                    <button
+                    <Button
                       type="submit"
                       className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       Sign up
-                    </button>
+                    </Button>
                     <Link
                       href="#"
                       type="button"
@@ -107,8 +158,8 @@ const SignUp = () => {
                       Forgot your Password?
                     </Link>
                   </div>
-                </div>
-              </form>
+                </form>
+              </Form>
             </div>
             <div
               className="order-first hidden w-full lg:block relative"
