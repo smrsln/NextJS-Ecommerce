@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
+import { signUp } from "@/app/services/signup-service";
+import { useSignupForm, signupSchema } from "@/hooks/use-signup-form";
 
 import { Button } from "@/app/components/ui//buttons/button";
 import { Loader2 } from "lucide-react";
@@ -22,72 +22,40 @@ import {
 import { Input } from "@/app/components/ui/form/input";
 import { toast } from "sonner";
 
-const signupSchema = z.object({
-  email: z.string().email({ message: "Invalid email" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
-});
-
 const SignUp = () => {
+  const form = useSignupForm();
   const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<z.infer<typeof signupSchema>>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = form;
 
-  const signUpMutation = useMutation(
-    async ({ email, password }: { email: string; password: string }) => {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message);
-      }
-
-      const data = await response.json();
-      return data;
+  const signUpMutation = useMutation(signUp, {
+    onMutate: () => {
+      toast.info("Creating user...");
     },
-    {
-      onMutate: () => {
-        toast.info("Creating user...");
-      },
-      onError: (error: Error) => {
-        setIsLoading(false);
-        toast.error(error.message, {
-          description: "Sign up failed",
-        });
-      },
-    }
-  );
+    onSuccess: ({ data }) => {
+      toast.success("Sign up successful", {
+        description: "You have successfully signed up",
+      });
+      signIn("credentials", {
+        email: data.email,
+        password: form.getValues().password,
+        redirect: true,
+      });
+    },
+    onError: (error: Error) => {
+      setIsLoading(false);
+      toast.error(error.message, {
+        description: "Sign up failed",
+      });
+    },
+  });
 
   const handleSignUp = async (values: z.infer<typeof signupSchema>) => {
     setIsLoading(true);
-    signUpMutation.mutate(values, {
-      onSuccess: ({ data }) => {
-        toast.success("Sign up successful", {
-          description: "You have successfully signed up",
-        });
-        signIn("credentials", {
-          email: data.email,
-          password: values.password,
-          redirect: true,
-        });
-      },
-    });
+    signUpMutation.mutate(values);
   };
 
   return (
