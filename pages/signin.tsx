@@ -1,34 +1,64 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import Image from "next/image";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+// import { signIn } from "next-auth/react";
+import { useMutation } from "react-query";
+import { signIn } from "@/app/services/signin-service";
+import { toast } from "sonner";
 import { useRouter } from "next/router";
+import { Button } from "@/app/components/ui/buttons/button";
+import { Loader2 } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/app/components/ui/form/form";
+import { Input } from "@/app/components/ui/form/input";
+import { useSigninForm, signinSchema } from "@/hooks/use-signin-form";
 
 const SignIn = () => {
+  const form = useSigninForm(); // This is a custom hook that returns a form object
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<Error | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleSignIn = async (e: FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = form;
 
-    if (result && result.error) {
-      setError(new Error(result.error));
-      setIsLoading(false);
-    } else if (result && result.ok) {
-      setError(null);
+  const signInMutation = useMutation(signIn, {
+    onMutate: () => {
+      toast.info("Signing in...");
+    },
+    onSuccess: ({ data }) => {
+      toast.success("Sign in successful", {
+        description: "You have successfully signed in",
+      });
       router.push("/");
-    }
+    },
+    onError: (error: Error) => {
+      setIsLoading(false);
+      toast.error(error.message, {
+        description: "Sign in failed",
+      });
+    },
+  });
+
+  const handleSignIn = async (values: z.infer<typeof signinSchema>) => {
+    setIsLoading(true);
+    signInMutation.mutate(values);
   };
 
   return (
@@ -49,51 +79,71 @@ const SignIn = () => {
                   </div>
                 </div>
               </div>
-              <form onSubmit={handleSignIn}>
-                <div className="mt-6 space-y-2">
-                  <div>
-                    <label htmlFor="email" className="sr-only">
-                      Email
-                    </label>
-                    <input
-                      type="text"
-                      name="email"
-                      id="email"
-                      className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="password" className="sr-only">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      id="password"
-                      className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex flex-col mt-4 lg:space-y-2">
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className={`flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                        isLoading ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      {isLoading ? "Signing in..." : "Sign in"}
-                    </button>
-                    {error && (
-                      <p className="text-sm text-red-500">
-                        {error && `Error: ${(error as Error).message}`}
-                      </p>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(handleSignIn)}
+                  className="mt-6 space-y-2"
+                >
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="email" className="sr-only">
+                          Email
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            id="email"
+                            placeholder="Enter your email"
+                            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                            {...field}
+                          />
+                        </FormControl>
+                        {errors.email && (
+                          <FormMessage>{errors.email.message}</FormMessage>
+                        )}
+                      </FormItem>
                     )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="password" className="sr-only">
+                          Password
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                            {...field}
+                          />
+                        </FormControl>
+                        {errors.password && (
+                          <FormMessage>{errors.password.message}</FormMessage>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex flex-col mt-4 lg:space-y-2">
+                    {isLoading ? (
+                      <Button disabled>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Please wait
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        Sign In
+                      </Button>
+                    )}
+
                     <Link
                       href="#"
                       type="button"
@@ -101,9 +151,14 @@ const SignIn = () => {
                     >
                       Forgot your Password?
                     </Link>
+                    <Link href="/signup">
+                      <a className="inline-flex justify-center py-4 text-base font-medium text-gray-500 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm">
+                        Don't have an account? Sign up
+                      </a>
+                    </Link>
                   </div>
-                </div>
-              </form>
+                </form>
+              </Form>
             </div>
             <div
               className="order-first hidden w-full lg:block relative"

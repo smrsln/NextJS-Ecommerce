@@ -9,7 +9,7 @@ import { useMutation } from "react-query";
 import { signUp } from "@/app/services/signup-service";
 import { useSignupForm, signupSchema } from "@/hooks/use-signup-form";
 
-import { Button } from "@/app/components/ui//buttons/button";
+import { Button } from "@/app/components/ui/buttons/button";
 import { Loader2 } from "lucide-react";
 import {
   Form,
@@ -24,7 +24,7 @@ import { toast } from "sonner";
 
 const SignUp = () => {
   const form = useSignupForm();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const {
     handleSubmit,
     control,
@@ -146,7 +146,7 @@ const SignUp = () => {
                       type="button"
                       className="inline-flex justify-center py-4 text-base font-medium text-gray-500 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
                     >
-                      Forgot your Password?
+                      Already have an account? Sign in
                     </Link>
                   </div>
                 </form>

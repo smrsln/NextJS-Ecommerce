@@ -17,8 +17,3 @@ export default async function signin(
     })
   );
 }
-
-//This file is created for the purpose of future implementation of the sign in API endpoint
-//-Mobile or Desktop Applications
-//-Third-party integrations
-//-API testing
