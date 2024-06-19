@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
-import { signUp } from "@/app/services/signup-service";
+import { signUpService } from "@/app/services/signup-service";
 import { useSignupForm, signupSchema } from "@/hooks/use-signup-form";
 
 import { Button } from "@/app/components/ui/buttons/button";
@@ -31,7 +31,7 @@ const SignUp = () => {
     formState: { errors },
   } = form;
 
-  const signUpMutation = useMutation(signUp, {
+  const signUpMutation = useMutation(signUpService, {
     onMutate: () => {
       toast.info("Creating user...");
     },
@@ -142,7 +142,7 @@ const SignUp = () => {
                     )}
 
                     <Link
-                      href="#"
+                      href="/signin"
                       type="button"
                       className="inline-flex justify-center py-4 text-base font-medium text-gray-500 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
                     >

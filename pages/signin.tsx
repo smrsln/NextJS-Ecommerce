@@ -6,9 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
 import Link from "next/link";
-// import { signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
-import { signIn } from "@/app/services/signin-service";
+import { signInService } from "@/app/services/signin-service";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { Button } from "@/app/components/ui/buttons/button";
@@ -27,10 +27,6 @@ import { useSigninForm, signinSchema } from "@/hooks/use-signin-form";
 const SignIn = () => {
   const form = useSigninForm(); // This is a custom hook that returns a form object
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<Error | null>(null);
 
   const {
     handleSubmit,
@@ -38,7 +34,7 @@ const SignIn = () => {
     formState: { errors },
   } = form;
 
-  const signInMutation = useMutation(signIn, {
+  const signInMutation = useMutation(signInService, {
     onMutate: () => {
       toast.info("Signing in...");
     },
@@ -46,7 +42,11 @@ const SignIn = () => {
       toast.success("Sign in successful", {
         description: "You have successfully signed in",
       });
-      router.push("/");
+      signIn("credentials", {
+        email: data.email,
+        password: form.getValues().password,
+        redirect: true,
+      });
     },
     onError: (error: Error) => {
       setIsLoading(false);
@@ -151,10 +151,12 @@ const SignIn = () => {
                     >
                       Forgot your Password?
                     </Link>
-                    <Link href="/signup">
-                      <a className="inline-flex justify-center py-4 text-base font-medium text-gray-500 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm">
-                        Don't have an account? Sign up
-                      </a>
+                    <Link
+                      href="/signup"
+                      className="inline-flex justify-center py-4 text-base font-medium text-gray-500 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
+                    >
+                      Don't have an account?{" "}
+                      <span className="font-bold underline">Sign up</span>
                     </Link>
                   </div>
                 </form>

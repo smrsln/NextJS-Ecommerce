@@ -2,7 +2,6 @@
 import mongoose from "mongoose";
 import { IUser, IUserModel } from "@/app/types/User";
 import bcrypt from "bcrypt";
-import createHttpError from "http-errors";
 
 const UserSchema = new mongoose.Schema<IUser>(
   {

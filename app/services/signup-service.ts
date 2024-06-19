@@ -1,4 +1,4 @@
-export async function signUp({
+export async function signUpService({
   email,
   password,
 }: {

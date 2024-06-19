@@ -1,8 +1,14 @@
 import { User } from "@/app/models/User"; // assuming User is the model
-import bcrypt from "bcrypt";
 import createHttpError from "http-errors";
 
 class UserController {
+  private static omitPassword(user: any) {
+    const { password, ...userWithoutPassword } = user.toObject
+      ? user.toObject()
+      : user;
+    return userWithoutPassword;
+  }
+
   static async createUser(email: string, password: string) {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -12,12 +18,7 @@ class UserController {
     const user = new User({ email, password });
     await user.save();
 
-    // Create a new object that doesn't include the password
-    const userWithoutPassword = {
-      email: user.email,
-    };
-
-    return userWithoutPassword;
+    return this.omitPassword(user);
   }
 
   static async signIn(email: string, password: string) {
@@ -31,9 +32,7 @@ class UserController {
       throw new createHttpError.Unauthorized("Invalid email or password");
     }
 
-    // const { password: _, ...userObject } = user.toObject();
-
-    return user;
+    return this.omitPassword(user);
   }
 }
 
