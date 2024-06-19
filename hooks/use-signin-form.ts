@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-const signinSchema = z.object({
+export const signinSchema = z.object({
   email: z
     .string()
     .email({ message: "Invalid email address" })
