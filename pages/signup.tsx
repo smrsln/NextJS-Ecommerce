@@ -8,7 +8,6 @@ import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
 import { signUpService } from "@/app/services/signup-service";
 import { useSignupForm, signupSchema } from "@/hooks/use-signup-form";
-
 import { Button } from "@/app/components/ui/buttons/button";
 import { Loader2 } from "lucide-react";
 import {

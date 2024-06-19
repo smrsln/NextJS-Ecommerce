@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +8,6 @@ import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
 import { signInService } from "@/app/services/signin-service";
 import { toast } from "sonner";
-import { useRouter } from "next/router";
 import { Button } from "@/app/components/ui/buttons/button";
 import { Loader2 } from "lucide-react";
 import {
