@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-export const signinSchema = z.object({
-  email: z.string().email({ message: "Invalid email" }),
-  password: z
+const signinSchema = z.object({
+  email: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
+    .email({ message: "Invalid email address" })
+    .min(1, { message: "Email is required" }),
+  password: z.string().min(1, { message: "Password is required" }),
 });
 
 export function useSigninForm() {
