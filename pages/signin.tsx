@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/app/components/ui/form/form";
+import { InputField } from "@/app/components/ui/form/InputField";
 import { Input } from "@/app/components/ui/form/input";
 import { useSigninForm, signinSchema } from "@/hooks/use-signin-form";
 
@@ -81,50 +82,23 @@ const SignIn = () => {
                   onSubmit={form.handleSubmit(handleSignIn)}
                   className="mt-6 space-y-2"
                 >
-                  <FormField
-                    control={form.control}
+                  <InputField
+                    label="Email"
                     name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="email" className="sr-only">
-                          Email
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            id="email"
-                            placeholder="Enter your email"
-                            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
-                            {...field}
-                          />
-                        </FormControl>
-                        {errors.email && (
-                          <FormMessage>{errors.email.message}</FormMessage>
-                        )}
-                      </FormItem>
-                    )}
+                    type="text"
+                    placeholder="Enter your email"
+                    control={control}
+                    errors={errors}
+                    variant="signIn"
                   />
-                  <FormField
-                    control={form.control}
+                  <InputField
+                    label="Password"
                     name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="password" className="sr-only">
-                          Password
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            id="password"
-                            placeholder="Enter your password"
-                            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
-                            {...field}
-                          />
-                        </FormControl>
-                        {errors.password && (
-                          <FormMessage>{errors.password.message}</FormMessage>
-                        )}
-                      </FormItem>
-                    )}
+                    type="password"
+                    placeholder="Enter your password"
+                    control={control}
+                    errors={errors}
+                    variant="signIn"
                   />
                   <div className="flex flex-col mt-4 lg:space-y-2">
                     {isLoading ? (
