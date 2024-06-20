@@ -8,18 +8,8 @@ import { signIn } from "next-auth/react";
 import { useMutation } from "react-query";
 import { signInService } from "@/app/services/signin-service";
 import { toast } from "sonner";
-import { Button } from "@/app/components/ui/buttons/button";
-import { Loader2 } from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/app/components/ui/form/form";
-import { InputField } from "@/app/components/ui/form/InputField";
-import { Input } from "@/app/components/ui/form/input";
+import { Form } from "@/app/components/ui/form/form";
+import { InputField, LoadingButton } from "@/app/components/ui/form";
 import { useSigninForm, signinSchema } from "@/hooks/use-signin-form";
 
 const SignIn = () => {
@@ -101,20 +91,11 @@ const SignIn = () => {
                     variant="signIn"
                   />
                   <div className="flex flex-col mt-4 lg:space-y-2">
-                    {isLoading ? (
-                      <Button disabled>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Please wait
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Sign In
-                      </Button>
-                    )}
-
+                    <LoadingButton
+                      isLoading={isLoading}
+                      loadingText="Please wait.."
+                      type="submit"
+                    />
                     <Link
                       href="#"
                       type="button"

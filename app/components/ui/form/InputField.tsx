@@ -37,8 +37,8 @@ const InputField: React.FC<InputFieldProps> = ({
   variant,
   className,
 }) => {
-  const selectecClassSet = classSets[variant];
-  const finalClassName = twMerge(selectecClassSet, className);
+  const selectedClassSet = classSets[variant];
+  const finalClassName = twMerge(selectedClassSet, className);
   return (
     <FormField
       control={control}
