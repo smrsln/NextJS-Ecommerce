@@ -8,17 +8,18 @@ interface LoadingButtonProps
   isLoading: boolean;
   loadingText?: string;
   variant?: "primary";
+  buttonText: string;
 }
 
 const classSets = {
   primary:
-    "flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center transition duration-500 ease-in-out transform rounded-xl ",
+    "flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
 };
 
 const LoadingButton: React.FC<LoadingButtonProps> = ({
   isLoading,
   loadingText = "Please wait",
-  children,
+  buttonText,
   variant = "primary",
   className,
   ...props
@@ -37,7 +38,7 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
           {loadingText}
         </>
       ) : (
-        children
+        buttonText
       )}
     </Button>
   );
