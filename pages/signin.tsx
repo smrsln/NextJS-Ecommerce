@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { z } from "zod";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
@@ -14,7 +13,6 @@ import { AuthLayout } from "@/app/components/auth/AuthLayout";
 
 const SignIn = () => {
   const form = useSigninForm(); // This is a custom hook that returns a form object
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
     handleSubmit,
@@ -37,7 +35,6 @@ const SignIn = () => {
       });
     },
     onError: (error: Error) => {
-      setIsLoading(false);
       toast.error(error.message, {
         description: "Sign in failed",
       });
@@ -45,7 +42,6 @@ const SignIn = () => {
   });
 
   const handleSignIn = async (values: z.infer<typeof signinSchema>) => {
-    setIsLoading(true);
     signInMutation.mutate(values);
   };
 
@@ -85,6 +81,7 @@ const SignIn = () => {
             control={control}
             errors={errors}
             variant="signIn"
+            disabled={signInMutation.isLoading}
           />
           <InputField
             label="Password"
@@ -94,10 +91,11 @@ const SignIn = () => {
             control={control}
             errors={errors}
             variant="signIn"
+            disabled={signInMutation.isLoading}
           />
           <div className="flex flex-col mt-4 lg:space-y-2">
             <LoadingButton
-              isLoading={isLoading}
+              isLoading={signInMutation.isLoading}
               loadingText="Please wait.."
               type="submit"
               buttonText="Sign in"

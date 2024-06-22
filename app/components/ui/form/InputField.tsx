@@ -18,6 +18,7 @@ type InputFieldProps = {
   errors: any;
   variant: "signIn" | "signUp";
   className?: string;
+  disabled?: boolean;
 };
 
 const classSets = {
@@ -36,6 +37,7 @@ const InputField: React.FC<InputFieldProps> = ({
   errors,
   variant,
   className,
+  disabled,
 }) => {
   const selectedClassSet = classSets[variant];
   const finalClassName = twMerge(selectedClassSet, className);
@@ -54,6 +56,7 @@ const InputField: React.FC<InputFieldProps> = ({
               id={name}
               placeholder={placeholder}
               className={finalClassName}
+              disabled={disabled}
               {...field}
             />
           </FormControl>
