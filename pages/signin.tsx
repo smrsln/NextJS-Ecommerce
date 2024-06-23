@@ -1,11 +1,10 @@
 "use client";
 
 import { z } from "zod";
-import Link from "next/link";
 import { Form } from "@/app/components/ui/form/form";
 import { InputField, LoadingButton } from "@/app/components/ui/form";
 import { useSigninForm, signinSchema } from "@/hooks/useSignInForm";
-import { AuthLayout } from "@/app/components/auth/AuthLayout";
+import { AuthLayout, SignInSubFormContent } from "@/app/components/auth";
 import useSignInMutation from "@/hooks/useSignInMutation";
 
 const SignIn = () => {
@@ -22,28 +21,11 @@ const SignIn = () => {
     signInMutation.mutate(values);
   };
 
-  const subFormContent = (
-    <>
-      <Link
-        href="/forgot-password"
-        className="inline-flex justify-center py-4 text-base font-medium text-gray-500 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
-      >
-        Forgot password?
-      </Link>
-      <Link
-        href="/signup"
-        className="inline-flex justify-center py-2 text-base font-medium text-gray-500 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
-      >
-        Don't have an account? <span className="underline">Sign up</span>
-      </Link>
-    </>
-  );
-
   return (
     <AuthLayout
       title="Sign in"
       subTitle="Login for shopping..."
-      subFormContent={subFormContent}
+      subFormContent={<SignInSubFormContent />}
     >
       <Form {...formMethods}>
         <form

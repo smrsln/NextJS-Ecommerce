@@ -29,7 +29,12 @@ const useSignInMutation = (): UseMutationResult<
           description: "Sign in failed",
         });
       },
-      retry: 3,
+      retry: (failureCount, error) => {
+        // If there's an error (e.g., server responded with an error), don't retry
+        if (error) return false;
+        // Otherwise, retry up to 3 times
+        return failureCount < 3;
+      },
       retryDelay: 1000,
     }
   );
