@@ -11,15 +11,17 @@ const SignIn = () => {
   const formMethods = useSigninForm();
   const signInMutation = useSignInMutation();
 
+  const isDisabled = signInMutation.isLoading || signInMutation.isSuccess;
+
+  const handleSignIn = async (values: z.infer<typeof signinSchema>) => {
+    signInMutation.mutate(values);
+  };
+
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = formMethods;
-
-  const handleSignIn = async (values: z.infer<typeof signinSchema>) => {
-    signInMutation.mutate(values);
-  };
 
   return (
     <AuthLayout
@@ -40,7 +42,7 @@ const SignIn = () => {
             control={control}
             errors={errors}
             variant="signIn"
-            disabled={signInMutation.isLoading}
+            disabled={isDisabled}
           />
           <InputField
             label="Password"
@@ -50,11 +52,11 @@ const SignIn = () => {
             control={control}
             errors={errors}
             variant="signIn"
-            disabled={signInMutation.isLoading}
+            disabled={isDisabled}
           />
           <div className="flex flex-col mt-4 lg:space-y-2">
             <LoadingButton
-              isLoading={signInMutation.isLoading}
+              isLoading={isDisabled}
               loadingText="Please wait.."
               type="submit"
               buttonText="Sign in"
