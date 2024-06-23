@@ -3,9 +3,9 @@
 import { z } from "zod";
 import { Form } from "@/app/components/ui/form/form";
 import { InputField, LoadingButton } from "@/app/components/form";
-import { useSigninForm, signinSchema } from "@/hooks/useSignInForm";
+import { useSigninForm, signinSchema } from "@/hooks/auth/useSignInForm";
 import { AuthLayout, SignInSubFormContent } from "@/app/components/auth";
-import useSignInMutation from "@/hooks/useSignInMutation";
+import useSignInMutation from "@/hooks/auth/useSignInMutation";
 
 const SignIn = () => {
   const formMethods = useSigninForm();
