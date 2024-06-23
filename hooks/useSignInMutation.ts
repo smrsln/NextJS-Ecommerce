@@ -1,20 +1,29 @@
-import { useMutation } from "react-query";
+import { useMutation, UseMutationResult } from "react-query";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { signInService } from "@/app/services/signin-service";
 
-const useSignInMutation = () => {
-  return useMutation(signInService, {
-    onMutate: () => {
+type SignInMutationProps = {
+  email: string;
+  password: string;
+};
+
+const useSignInMutation = (): UseMutationResult<
+  void,
+  Error,
+  SignInMutationProps
+> => {
+  return useMutation<void, Error, SignInMutationProps>(signInService, {
+    onMutate: async (variables) => {
       toast.info("Signing in...");
     },
-    onSuccess: ({ data }) => {
+    onSuccess: (data, variables) => {
       toast.success("Sign in successful", {
         description: "You have successfully signed in",
       });
       signIn("credentials", {
-        email: data.email,
-        password: data.password,
+        email: variables.email,
+        password: variables.password,
         redirect: true,
       });
     },
