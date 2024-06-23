@@ -10,7 +10,7 @@ export const signinSchema = z.object({
   password: z.string().min(1, { message: "Password is required" }),
 });
 
-export function useSigninForm() {
+export const useSigninForm = () => {
   const form = useForm<z.infer<typeof signinSchema>>({
     resolver: zodResolver(signinSchema),
     defaultValues: {
@@ -20,4 +20,4 @@ export function useSigninForm() {
   });
 
   return form;
-}
+};

@@ -2,44 +2,21 @@
 
 import { z } from "zod";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
-import { useMutation } from "react-query";
-import { signInService } from "@/app/services/signin-service";
-import { toast } from "sonner";
 import { Form } from "@/app/components/ui/form/form";
 import { InputField, LoadingButton } from "@/app/components/ui/form";
-import { useSigninForm, signinSchema } from "@/hooks/use-signin-form";
+import { useSigninForm, signinSchema } from "@/hooks/useSignInForm";
 import { AuthLayout } from "@/app/components/auth/AuthLayout";
+import useSignInMutation from "@/hooks/useSignInMutation";
 
 const SignIn = () => {
-  const form = useSigninForm(); // This is a custom hook that returns a form object
+  const formMethods = useSigninForm();
+  const signInMutation = useSignInMutation();
 
   const {
     handleSubmit,
     control,
     formState: { errors },
-  } = form;
-
-  const signInMutation = useMutation(signInService, {
-    onMutate: () => {
-      toast.info("Signing in...");
-    },
-    onSuccess: ({ data }) => {
-      toast.success("Sign in successful", {
-        description: "You have successfully signed in",
-      });
-      signIn("credentials", {
-        email: data.email,
-        password: form.getValues().password,
-        redirect: true,
-      });
-    },
-    onError: (error: Error) => {
-      toast.error(error.message, {
-        description: "Sign in failed",
-      });
-    },
-  });
+  } = formMethods;
 
   const handleSignIn = async (values: z.infer<typeof signinSchema>) => {
     signInMutation.mutate(values);
@@ -68,9 +45,9 @@ const SignIn = () => {
       subTitle="Login for shopping..."
       subFormContent={subFormContent}
     >
-      <Form {...form}>
+      <Form {...formMethods}>
         <form
-          onSubmit={form.handleSubmit(handleSignIn)}
+          onSubmit={formMethods.handleSubmit(handleSignIn)}
           className="mt-6 space-y-2"
         >
           <InputField
