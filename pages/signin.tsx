@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { Form } from "@/app/components/ui/form/form";
-import { InputField, LoadingButton } from "@/app/components/form";
+import { InputField, LoadingButton, Checkbox } from "@/app/components/form";
 import { useSigninForm, signinSchema } from "@/hooks/auth/useSignInForm";
 import { AuthLayout, SignInSubFormContent } from "@/app/components/auth";
 import useSignInMutation from "@/hooks/auth/useSignInMutation";
@@ -62,6 +62,7 @@ const SignIn = () => {
               buttonText="Sign in"
             />
           </div>
+          <Checkbox label="Remember Me" name="rememberMe" control={control} />
         </form>
       </Form>
     </AuthLayout>
