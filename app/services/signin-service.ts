@@ -12,10 +12,8 @@ export async function signInService({
   });
 
   if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.message);
+    throw new Error(response.message);
   }
 
-  const data = await response.json();
-  return data;
+  return response;
 }
