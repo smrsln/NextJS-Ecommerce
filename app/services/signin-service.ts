@@ -11,9 +11,10 @@ export async function signInService({
     body: JSON.stringify({ email, password }),
   });
 
+  const data = await response.json();
   if (!response.ok) {
-    throw new Error(response.message);
+    throw new Error(data.message);
   }
 
-  return response;
+  return data;
 }
