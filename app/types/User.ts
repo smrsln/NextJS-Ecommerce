@@ -1,4 +1,4 @@
-import mongoose, { Document, Model } from "mongoose";
+import { Document, Model } from "mongoose";
 
 export interface IUser extends Document {
   email: string;
@@ -7,5 +7,4 @@ export interface IUser extends Document {
   image?: string;
   comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
-
-export interface IUserModel extends mongoose.Model<IUser> {}
+export interface IUserModel extends Model<IUser> {}
