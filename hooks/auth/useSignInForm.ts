@@ -8,7 +8,7 @@ export const signinSchema = z.object({
     .email({ message: "Invalid email address" })
     .min(1, { message: "Email is required" }),
   password: z.string().min(1, { message: "Password is required" }),
-  rememberMe: z.boolean(),
+  rememberMe: z.boolean().default(false),
 });
 
 export const useSigninForm = () => {
@@ -17,6 +17,7 @@ export const useSigninForm = () => {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   });
 
