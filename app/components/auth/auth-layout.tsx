@@ -51,7 +51,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
                 alt=""
                 width={1000}
                 height={667}
-                priority
+                priority={true}
               />
             </div>
           </div>

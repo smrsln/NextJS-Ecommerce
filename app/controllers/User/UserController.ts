@@ -1,4 +1,4 @@
-import { User } from "@/app/models/User"; // assuming User is the model
+import { User } from "@/app/models/User";
 import createHttpError from "http-errors";
 
 class UserController {

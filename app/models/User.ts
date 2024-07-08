@@ -1,4 +1,3 @@
-// models/User.ts
 import mongoose from "mongoose";
 import { IUser, IUserModel } from "@/app/types/IUser";
 import bcrypt from "bcrypt";
