@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import cookie from "cookie";
+import { parse } from "cookie";
 
 function logRequest(req: NextRequest) {
   // Commented out because of high cost. Uncomment for debugging purposes
@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
 
   const validPaths = ["/signin", "/signup"];
   if (validPaths.some((path) => req.nextUrl.pathname.startsWith(path))) {
-    const cookies = cookie.parse(req.headers.get("Cookie") || "");
+    const cookies = parse(req.headers.get("Cookie") || "");
     const cookieName = process.env.VERCEL
       ? "__Secure-next-auth.session-token"
       : "next-auth.session-token";
