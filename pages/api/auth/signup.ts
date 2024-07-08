@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import UserController from "@/app/controllers/User/UserController";
-import DbConnectMiddleware from "@/app/middleware/DbConnectMiddleware";
-import { AuthMiddleware } from "@/app/middleware/AuthMiddleware";
+import DbConnectMiddleware from "@/app/middleware/db-connect-middleware";
+import { AuthMiddleware } from "@/app/middleware/auth-middleware";
 
 export default async function signup(
   req: NextApiRequest,

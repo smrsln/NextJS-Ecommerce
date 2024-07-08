@@ -3,7 +3,7 @@ export async function setCookieService(
   value: string,
   maxAge: number
 ): Promise<void> {
-  const response = await fetch("/api/setCookie", {
+  const response = await fetch("/api/set-cookie", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

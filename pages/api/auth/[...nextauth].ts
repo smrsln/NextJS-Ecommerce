@@ -8,7 +8,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const rememberMeCookie = req.cookies["rememberMe"];
-  console.log("Remember me cookie:", rememberMeCookie);
   const maxAge = rememberMeCookie ? 180 * 24 * 60 * 60 : 30 * 24 * 60 * 60; // 30 days expiration
 
   return await NextAuth(req, res, {

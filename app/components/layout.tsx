@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { ThemeProvider } from "@/app/components/themeProvider";
+import { ThemeProvider } from "@/app/components/theme-provider";
 import "@/app/globals.css";
 import ErrorBoundary from "@/app/components/error-boundary";
 import Head from "next/head";
