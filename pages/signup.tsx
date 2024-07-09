@@ -1,11 +1,11 @@
 "use client";
 
 import { z } from "zod";
-import { useSignupForm, signupSchema } from "@/hooks/auth/useSignUpForm";
+import { useSignupForm, signupSchema } from "@/hooks/auth/signup/useSignUpForm";
 import { Form } from "@/app/components/ui/form/form";
 import { InputField, LoadingButton } from "@/app/components/form";
 import { AuthLayout, SignUpSubFormContent } from "@/app/components/auth";
-import useSignUpMutation from "@/hooks/auth/useSignUpMutation";
+import useSignUpMutation from "@/hooks/auth/signup/useSignUpMutation";
 
 const SignUp = () => {
   const formMethods = useSignupForm();

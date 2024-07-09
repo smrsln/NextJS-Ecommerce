@@ -7,9 +7,9 @@ import {
   LoadingButton,
   CheckboxField,
 } from "@/app/components/form";
-import { useSigninForm, signinSchema } from "@/hooks/auth/useSignInForm";
+import { useSigninForm, signinSchema } from "@/hooks/auth/signin/useSignInForm";
 import { AuthLayout, SignInSubFormContent } from "@/app/components/auth";
-import useSignInMutation from "@/hooks/auth/useSignInMutation";
+import useSignInMutation from "@/hooks/auth/signin/useSignInMutation";
 
 const SignIn = () => {
   const formMethods = useSigninForm();
