@@ -14,7 +14,7 @@ const useSignInMutation = (): UseMutationResult<
     { email: string; password: string; rememberMe: boolean }
   >(
     async ({ email, password }) => {
-      const response = await fetch("/api/signin", {
+      const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
