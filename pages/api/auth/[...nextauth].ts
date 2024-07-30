@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import dbCheck from "@/db";
-import UserController from "@/app/controllers/User/UserController";
+import { signInService } from "@/app/services/user-service";
 import { logger } from "@/lib/logger";
 import createHttpError from "http-errors";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -30,7 +30,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
 
           try {
             await dbCheck();
-            const user = await UserController.signIn(
+            const user = await signInService(
               credentials.email,
               credentials.password
             );
