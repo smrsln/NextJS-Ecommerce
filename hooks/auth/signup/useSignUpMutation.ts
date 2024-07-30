@@ -1,7 +1,7 @@
 import { useMutation, UseMutationResult } from "react-query";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
-import { signUpService } from "@/app/services/signup-service";
+import { signUpService } from "@/app/services/user-service";
 
 const useSignUpMutation = (): UseMutationResult<
   void,
@@ -9,7 +9,20 @@ const useSignUpMutation = (): UseMutationResult<
   { email: string; password: string }
 > => {
   return useMutation<void, Error, { email: string; password: string }>(
-    signUpService,
+    async ({ email, password }) => {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+    },
     {
       onMutate: async () => {
         toast.info("Creating user...");

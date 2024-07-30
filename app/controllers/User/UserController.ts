@@ -1,38 +1,26 @@
-import { User } from "@/app/models/User";
-import createHttpError from "http-errors";
+import { signInService, signUpService } from "@/app/services/user-service";
+import { handleError } from "@/lib/utils";
+import { NextApiRequest, NextApiResponse } from "next";
 
 class UserController {
-  private static omitPassword(user: any) {
-    const { password, ...userWithoutPassword } = user.toObject
-      ? user.toObject()
-      : user;
-    return userWithoutPassword;
+  static async createUser(req: NextApiRequest, res: NextApiResponse) {
+    const { email, password } = req.body;
+    try {
+      const user = await signUpService(email, password);
+      res.status(200).json({ success: true, data: user });
+    } catch (error) {
+      handleError(res, error);
+    }
   }
 
-  static async createUser(email: string, password: string) {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      throw new createHttpError.Conflict("User already exists");
+  static async signIn(req: NextApiRequest, res: NextApiResponse) {
+    const { email, password } = req.body;
+    try {
+      const user = await signInService(email, password);
+      res.status(200).json({ success: true, data: user });
+    } catch (error) {
+      handleError(res, error);
     }
-
-    const user = new User({ email, password });
-    await user.save();
-
-    return this.omitPassword(user);
-  }
-
-  static async signIn(email: string, password: string) {
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new createHttpError.NotFound("Invalid email or password");
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      throw new createHttpError.Unauthorized("Invalid email or password");
-    }
-
-    return this.omitPassword(user);
   }
 }
 

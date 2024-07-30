@@ -11,9 +11,7 @@ export default async function signup(
     req,
     res,
     await AuthMiddleware(async (req, res) => {
-      const { email, password } = req.body;
-      const user = await UserController.createUser(email, password);
-      res.status(200).json({ success: true, data: user });
+      await UserController.createUser(req, res);
     })
   );
 }
