@@ -16,7 +16,12 @@ export async function signInService(email: string, password: string) {
 
     return omitPassword(user);
   } catch (error) {
-    // Log the error if needed
+    if (error instanceof createHttpError.HttpError) {
+      // Rethrow known HTTP errors
+      throw error;
+    }
+    // Log the unexpected error if needed
+    console.error("Unexpected error during sign-in process:", error);
     throw new createHttpError.InternalServerError("Failed to sign in");
   }
 }
@@ -33,7 +38,12 @@ export async function signUpService(email: string, password: string) {
 
     return omitPassword(user);
   } catch (error) {
-    // Log the error if needed
+    if (error instanceof createHttpError.HttpError) {
+      // Rethrow known HTTP errors
+      throw error;
+    }
+    // Log the unexpected error if needed
+    console.error("Unexpected error during sign-up process:", error);
     throw new createHttpError.InternalServerError("Failed to create user");
   }
 }
