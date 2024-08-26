@@ -1,32 +1,55 @@
 import createHttpError from "http-errors";
 import { User } from "@/app/models/User";
+import { IUser } from "@/app/types/IUser";
 
-export async function signInService(email: string, password: string) {
+export async function signInService(
+  email: string,
+  password?: string,
+  googleId?: string
+): Promise<IUser> {
   try {
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
     if (!user) {
-      throw new createHttpError.NotFound("Invalid email or password");
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      throw new createHttpError.Unauthorized("Invalid email or password");
+      if (googleId) {
+        // Create a new user for Google sign-in
+        user = new User({ email, googleId });
+        await user.save();
+      } else {
+        throw new createHttpError.NotFound("Invalid email or password");
+      }
+    } else {
+      if (googleId) {
+        // Update existing user with Google ID if not present
+        if (!user.googleId) {
+          user.googleId = googleId;
+          await user.save();
+        }
+      } else if (password) {
+        // Regular sign-in
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+          throw new createHttpError.Unauthorized("Invalid email or password");
+        }
+      } else {
+        throw new createHttpError.BadRequest("Invalid sign-in method");
+      }
     }
 
     return omitPassword(user);
   } catch (error) {
     if (error instanceof createHttpError.HttpError) {
-      // Rethrow known HTTP errors
       throw error;
     }
-    // Log the unexpected error if needed
     console.error("Unexpected error during sign-in process:", error);
     throw new createHttpError.InternalServerError("Failed to sign in");
   }
 }
 
-export async function signUpService(email: string, password: string) {
+export async function signUpService(
+  email: string,
+  password: string
+): Promise<IUser> {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -39,10 +62,8 @@ export async function signUpService(email: string, password: string) {
     return omitPassword(user);
   } catch (error) {
     if (error instanceof createHttpError.HttpError) {
-      // Rethrow known HTTP errors
       throw error;
     }
-    // Log the unexpected error if needed
     console.error("Unexpected error during sign-up process:", error);
     throw new createHttpError.InternalServerError("Failed to create user");
   }

@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import dbCheck from "@/db";
 import { signInService } from "@/app/services/user-service";
 import { logger } from "@/lib/logger";
@@ -64,6 +65,10 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           }
         },
       }),
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      }),
     ],
     session: {
       // Use JSON Web Tokens for session management because it is more lightweight and next middleware can use it
@@ -91,11 +96,34 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
       },
     },
     callbacks: {
-      async jwt({ token, user }) {
+      async signIn({ user, account }) {
+        if (account?.provider === "google") {
+          try {
+            await dbCheck();
+            const dbUser = await signInService(
+              user.email!,
+              undefined,
+              account.id as string
+            );
+            if (dbUser) {
+              user.id = dbUser.id;
+              return true;
+            }
+          } catch (error) {
+            logger.error(`Failed to sign in with Google: ${error}`);
+            return false;
+          }
+        }
+        return true;
+      },
+      async jwt({ token, user, account }) {
         if (user) {
           token.id = user.id;
           token.name = user.name || user.email;
           token.email = user.email;
+        }
+        if (account) {
+          token.accessToken = account.access_token;
         }
         return token;
       },

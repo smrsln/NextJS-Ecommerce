@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
   //   logRequest(req);
   // }
 
-  const validPaths = ["/signin", "/signup"];
+  const validPaths = ["/signin", "/signup", "/api/auth/callback/google"];
   if (validPaths.some((path) => req.nextUrl.pathname.startsWith(path))) {
     const cookies = parse(req.headers.get("Cookie") || "");
     const cookieName = process.env.VERCEL
@@ -26,7 +26,10 @@ export async function middleware(req: NextRequest) {
       : "next-auth.session-token";
     const sessionToken = cookies[cookieName];
 
-    if (sessionToken) {
+    if (
+      sessionToken &&
+      !req.nextUrl.pathname.startsWith("/api/auth/callback/google")
+    ) {
       const redirectUrl = new URL("/", req.nextUrl);
       return NextResponse.redirect(redirectUrl.toString());
     }
