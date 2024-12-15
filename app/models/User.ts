@@ -20,7 +20,9 @@ const UserSchema = new mongoose.Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.googleId; // Password only required if not Google auth
+      },
       minlength: [6, "Password should be longer!"],
     },
     name: {
@@ -31,6 +33,9 @@ const UserSchema = new mongoose.Schema<IUser>(
       type: String,
       unique: true,
       sparse: true,
+    },
+    image: {
+      type: String,
     },
   },
   {

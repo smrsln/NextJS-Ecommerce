@@ -47,6 +47,8 @@ module.exports = withSentryConfig(
 
     // Automatically tree-shake Sentry logger statements to reduce bundle size
     disableLogger: true,
+    disableServerWebpackPlugin: true,
+    disableClientWebpackPlugin: true,
 
     // Enables automatic instrumentation of Vercel Cron Monitors.
     // See the following for more information:

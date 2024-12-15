@@ -14,9 +14,9 @@ class UserController {
   }
 
   static async signIn(req: NextApiRequest, res: NextApiResponse) {
-    const { email, password } = req.body;
+    const { email, password, googleId } = req.body;
     try {
-      const user = await signInService(email, password);
+      const user = await signInService(email, password, googleId);
       res.status(200).json({ success: true, data: user });
     } catch (error) {
       handleError(res, error);

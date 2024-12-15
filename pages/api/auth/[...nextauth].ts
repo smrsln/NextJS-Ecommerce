@@ -6,6 +6,8 @@ import { signInService } from "@/app/services/user-service";
 import { logger } from "@/lib/logger";
 import createHttpError from "http-errors";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { User } from "@/app/models/User";
+import { IUser } from "@/app/types/IUser";
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const rememberMeCookie = req.cookies["rememberMe"];
@@ -68,10 +70,16 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
       GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID!,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        authorization: {
+          params: {
+            prompt: "select_account",
+            access_type: "offline",
+            response_type: "code",
+          },
+        },
       }),
     ],
     session: {
-      // Use JSON Web Tokens for session management because it is more lightweight and next middleware can use it
       strategy: "jwt",
       maxAge: maxAge,
     },
@@ -96,16 +104,57 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
       },
     },
     callbacks: {
-      async signIn({ user, account }) {
+      async signIn({ user, account, profile }) {
         if (account?.provider === "google") {
+          logger.info("Google Sign In Data:", {
+            service: "Auth",
+            method: "POST",
+            path: "/api/auth/signin",
+            data: { user, account, profile },
+          });
+
           try {
             await dbCheck();
             const dbUser = await signInService(
               user.email!,
               undefined,
-              account.id as string
+              account.providerAccountId
             );
+
             if (dbUser) {
+              // Google'dan gelen tüm relevant bilgileri güncelle
+              const updates = {
+                name: user.name || dbUser.name,
+                image: user.image || dbUser.image,
+                // Diğer Google'dan gelen bilgileri de ekleyebiliriz
+                // locale: profile.locale,
+                // givenName: profile.given_name,
+                // familyName: profile.family_name,
+              };
+
+              // Sadece değişen alanları güncelle
+              const updatedFields = Object.entries(updates).reduce<
+                Partial<IUser>
+              >((acc, [key, value]) => {
+                if (value && value !== (dbUser as any)[key]) {
+                  acc[key as keyof IUser] = value;
+                }
+                return acc;
+              }, {});
+
+              if (Object.keys(updatedFields).length > 0) {
+                await User.findByIdAndUpdate(dbUser.id, updatedFields);
+                logger.info(
+                  `Updated user profile from Google data: ${dbUser.email}`,
+                  {
+                    service: "Auth",
+                    method: "POST",
+                    path: "/api/auth/signin",
+                    updates: updatedFields,
+                  }
+                );
+              }
+
               user.id = dbUser.id;
               return true;
             }
@@ -132,6 +181,11 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         return session;
       },
       async redirect({ url, baseUrl }) {
+        // If URL is from the same origin, use it directly
+        if (url.startsWith(baseUrl)) return url;
+        // If URL is a relative path (starts with /), combine it with baseUrl
+        if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+        // For all other cases, redirect to baseUrl
         return baseUrl;
       },
     },

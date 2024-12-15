@@ -8,15 +8,44 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ session }) => {
   const handleSignOut = async () => {
-    //When I redirect via next-auth or next-router withAuth redirect is triggering and it's redirecting to /signup
     await signOut({ callbackUrl: "/signin" });
     window.location.href = "/signin";
   };
+
   return (
-    <>
-      <pre>{JSON.stringify(session, null, 2)}</pre>
+    <div>
+      <div>
+        <h2>User Information</h2>
+        <p>Name: {session?.user?.name}</p>
+        <p>Email: {session?.user?.email}</p>
+        <img
+          src={session?.user?.image || ""}
+          alt="Profile"
+          style={{ width: 96, height: 96 }}
+        />
+      </div>
+
+      <div>
+        <h2>Session Details</h2>
+        <p>
+          Expires:{" "}
+          {session?.expires
+            ? new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+              }).format(new Date(session.expires))
+            : ""}
+        </p>
+        <p>{JSON.stringify(session, null, 2)}</p>
+      </div>
+
       <button onClick={handleSignOut}>Sign Out</button>
-    </>
+    </div>
   );
 };
 
