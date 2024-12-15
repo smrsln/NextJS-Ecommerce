@@ -1,6 +1,7 @@
 import createHttpError from "http-errors";
 import { User } from "@/app/models/User";
 import { IUser } from "@/app/types/IUser";
+import { logger } from "@/lib/logger";
 
 export async function signInService(
   email: string,
@@ -85,4 +86,55 @@ function omitPassword(user: any) {
     ? user.toObject()
     : user;
   return userWithoutPassword;
+}
+
+export async function updateUserFromGoogleProfile(
+  dbUser: IUser,
+  googleProfile: any,
+  account: any
+): Promise<IUser | null> {
+  try {
+    const updates = {
+      name: googleProfile.name || dbUser.name,
+      image: googleProfile.picture || googleProfile.image || dbUser.image,
+      emailVerified: googleProfile.email_verified ? new Date() : undefined,
+      givenName: googleProfile.given_name,
+      familyName: googleProfile.family_name,
+      locale: googleProfile.locale,
+      googleId: account.providerAccountId,
+      provider: account.provider,
+    };
+
+    const updatedFields = Object.entries(updates).reduce<Partial<IUser>>(
+      (acc, [key, value]) => {
+        if (value && value !== (dbUser as any)[key]) {
+          acc[key as keyof IUser] = value;
+        }
+        return acc;
+      },
+      {}
+    );
+
+    if (Object.keys(updatedFields).length > 0) {
+      const updatedUser = await User.findByIdAndUpdate(
+        dbUser.id,
+        updatedFields,
+        { new: true }
+      );
+
+      logger.info(`Updated user profile from Google data: ${dbUser.email}`, {
+        service: "Auth",
+        method: "POST",
+        path: "/api/auth/signin",
+        updates: updatedFields,
+      });
+
+      return updatedUser;
+    }
+
+    return dbUser;
+  } catch (error) {
+    logger.error(`Failed to update user from Google profile: ${error}`);
+    throw error;
+  }
 }

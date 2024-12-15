@@ -2,12 +2,13 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import dbCheck from "@/db";
-import { signInService } from "@/app/services/user-service";
+import {
+  signInService,
+  updateUserFromGoogleProfile,
+} from "@/app/services/user-service";
 import { logger } from "@/lib/logger";
 import createHttpError from "http-errors";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { User } from "@/app/models/User";
-import { IUser } from "@/app/types/IUser";
 
 interface GoogleProfile {
   email: string;
@@ -135,43 +136,16 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             );
 
             if (dbUser) {
-              const updates = {
-                name: user.name || dbUser.name,
-                image: googleProfile.picture || user.image || dbUser.image,
-                emailVerified: googleProfile.email_verified
-                  ? new Date()
-                  : undefined,
-                givenName: googleProfile.given_name,
-                familyName: googleProfile.family_name,
-                locale: googleProfile.locale,
-                googleId: account.providerAccountId,
-                provider: account.provider,
-              };
+              const updatedUser = await updateUserFromGoogleProfile(
+                dbUser,
+                googleProfile,
+                account
+              );
 
-              const updatedFields = Object.entries(updates).reduce<
-                Partial<IUser>
-              >((acc, [key, value]) => {
-                if (value && value !== (dbUser as any)[key]) {
-                  acc[key as keyof IUser] = value;
-                }
-                return acc;
-              }, {});
-
-              if (Object.keys(updatedFields).length > 0) {
-                await User.findByIdAndUpdate(dbUser.id, updatedFields);
-                logger.info(
-                  `Updated user profile from Google data: ${dbUser.email}`,
-                  {
-                    service: "Auth",
-                    method: "POST",
-                    path: "/api/auth/signin",
-                    updates: updatedFields,
-                  }
-                );
+              if (updatedUser) {
+                user.id = updatedUser.id;
+                return true;
               }
-
-              user.id = dbUser.id;
-              return true;
             }
           } catch (error) {
             logger.error(`Failed to sign in with Google: ${error}`);
