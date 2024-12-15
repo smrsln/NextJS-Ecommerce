@@ -8,33 +8,49 @@ export async function signInService(
   googleId?: string
 ): Promise<IUser> {
   try {
-    let user = await User.findOne({
-      $or: [{ email }, { googleId }],
-    });
+    let user;
 
-    if (!user) {
-      if (googleId) {
+    // Google ile giriş
+    if (googleId) {
+      user = await User.findOne({
+        $or: [
+          { googleId },
+          { email }, // Eğer email ile kayıtlı kullanıcı varsa, Google ID'sini ekleyeceğiz
+        ],
+      });
+
+      if (!user) {
+        // Yeni Google kullanıcısı oluştur
         user = new User({
           email,
           googleId,
         });
         await user.save();
-      } else if (password) {
-        throw new createHttpError.NotFound("Invalid email or password");
-      } else {
-        throw new createHttpError.BadRequest("Invalid authentication method");
+      } else if (!user.googleId) {
+        // Eğer email ile kayıtlı kullanıcı varsa, Google ID'sini ekle
+        user.googleId = googleId;
+        await user.save();
       }
+      return user;
     }
 
-    // Google authentication için password check'i bypass ediyoruz
-    if (!googleId && password) {
+    // Normal email/şifre ile giriş
+    if (password) {
+      user = await User.findOne({ email });
+
+      if (!user) {
+        throw new createHttpError.NotFound("Invalid email or password");
+      }
+
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         throw new createHttpError.Unauthorized("Invalid email or password");
       }
+
+      return user;
     }
 
-    return user;
+    throw new createHttpError.BadRequest("Invalid authentication method");
   } catch (error) {
     console.error("Sign-in error:", error);
     throw error;

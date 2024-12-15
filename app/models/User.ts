@@ -37,6 +37,23 @@ const UserSchema = new mongoose.Schema<IUser>(
     image: {
       type: String,
     },
+    emailVerified: {
+      type: Date,
+    },
+    givenName: {
+      type: String,
+      trim: true,
+    },
+    familyName: {
+      type: String,
+      trim: true,
+    },
+    locale: {
+      type: String,
+    },
+    provider: {
+      type: String,
+    },
   },
   {
     timestamps: true,
@@ -47,6 +64,18 @@ UserSchema.pre("save", async function (next) {
   if (this.isModified("password") && this.password) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+  }
+  if (!this.$isEmpty("name")) {
+    if (this.name) {
+      this.name
+        .trim()
+        .toLowerCase()
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    } else if (this.givenName && this.familyName) {
+      this.name = `${this.givenName.trim()} ${this.familyName.trim()}`;
+    }
   }
   next();
 });

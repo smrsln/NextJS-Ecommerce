@@ -9,6 +9,17 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { User } from "@/app/models/User";
 import { IUser } from "@/app/types/IUser";
 
+interface GoogleProfile {
+  email: string;
+  email_verified: boolean;
+  name: string;
+  picture: string;
+  given_name: string;
+  family_name: string;
+  locale: string;
+  sub: string;
+}
+
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const rememberMeCookie = req.cookies["rememberMe"];
   const maxAge = rememberMeCookie ? 180 * 24 * 60 * 60 : 30 * 24 * 60 * 60; // 30 days expiration
@@ -39,7 +50,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             );
 
             if (user) {
-              //&& (await user.comparePassword(credentials.password))
               return {
                 id: user.id,
                 name: user.name || user.email,
@@ -75,6 +85,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             prompt: "select_account",
             access_type: "offline",
             response_type: "code",
+            scope: "openid email profile",
           },
         },
       }),
@@ -106,12 +117,14 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     callbacks: {
       async signIn({ user, account, profile }) {
         if (account?.provider === "google") {
-          logger.info("Google Sign In Data:", {
-            service: "Auth",
-            method: "POST",
-            path: "/api/auth/signin",
-            data: { user, account, profile },
-          });
+          const googleProfile = profile as GoogleProfile;
+
+          if (!googleProfile.email_verified) {
+            logger.error("Google email not verified", {
+              email: googleProfile.email,
+            });
+            return false;
+          }
 
           try {
             await dbCheck();
@@ -122,17 +135,19 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             );
 
             if (dbUser) {
-              // Google'dan gelen tüm relevant bilgileri güncelle
               const updates = {
                 name: user.name || dbUser.name,
-                image: user.image || dbUser.image,
-                // Diğer Google'dan gelen bilgileri de ekleyebiliriz
-                // locale: profile.locale,
-                // givenName: profile.given_name,
-                // familyName: profile.family_name,
+                image: googleProfile.picture || user.image || dbUser.image,
+                emailVerified: googleProfile.email_verified
+                  ? new Date()
+                  : undefined,
+                givenName: googleProfile.given_name,
+                familyName: googleProfile.family_name,
+                locale: googleProfile.locale,
+                googleId: account.providerAccountId,
+                provider: account.provider,
               };
 
-              // Sadece değişen alanları güncelle
               const updatedFields = Object.entries(updates).reduce<
                 Partial<IUser>
               >((acc, [key, value]) => {
@@ -168,8 +183,9 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
       async jwt({ token, user, account }) {
         if (user) {
           token.id = user.id;
-          token.name = user.name || user.email;
           token.email = user.email;
+          token.name = user.name;
+          token.image = user.image;
         }
         if (account) {
           token.accessToken = account.access_token;
@@ -177,7 +193,15 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         return token;
       },
       async session({ session, token }) {
-        session.user = { ...token };
+        if (token && session.user) {
+          session.user = {
+            ...session.user,
+            id: token.id as string,
+            email: token.email as string,
+            name: token.name as string,
+            image: token.image as string,
+          };
+        }
         return session;
       },
       async redirect({ url, baseUrl }) {
